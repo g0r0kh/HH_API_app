@@ -40,22 +40,41 @@ def main(page: ft.Page):
 
         URL = f'https://api.hh.ru/vacancies?text={user_data.value}&area={1}&per_page={10}&page={1}'
         vac_count = requests.get(URL).json()
-        tmp = int(vac_count['found']) // 100 if int(vac_count['found']) // 100 < 20 else 3
+        tmp = int(vac_count['found']) // 100 if int(vac_count['found']) // 100 < 20 else 1
 
 
         for i in range(0, tmp):
             URL = f'https://api.hh.ru/vacancies?text={user_data.value}&area={1}&per_page={100}&page={i}'
             res = requests.get(URL).json()
+
             for j in range(0, len(res['items'])):
                 select_columns = {key: res['items'][j][key] for key in
                                   ['id', 'salary', 'published_at']}
 
                 str_json.append(flatten(select_columns))
 
+        if len(str_json) == 0:
+            # income = pd.read_csv('income.csv')
+            plt.cla()
+            plt.title('HH.ru query:', color='#1f77b4')
+            x = [2, 2, 2, 2.5, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4.5, 4.5, 4.5, 4.5, 5, 5, 5, 5, 5, 6, 6, 6, 6.5, 7, 7, 7,
+                 7, 7]
+            y = [8, 7, 6, 6, 8, 7, 6, 5, 4, 8, 7, 6, 5, 4, 8, 8, 4, 4, 8, 7, 6, 5, 4, 8, 7, 6, 6, 8, 7, 6, 5, 4]
+            ax.set_xlabel(":", color='#1f77b4')
+            ax.set_ylabel(":", color='#1f77b4')
+            plt.xticks(rotation=45, color='#1f77b4')
+            plt.yticks(color='#1f77b4')
+            ax.plot(x, y, marker='o',
+                    markersize=29, color='r', dashes=[0, 1, 1])
+            # plt.grid()
+            # time.sleep(time.process_time() - start)
+            chart.update()
+
         df = pd.DataFrame(str_json)
 
 
         df['published_at'] = df['published_at'].str[:10]
+
         # chart pics
         pics = pd.DataFrame(df.groupby(['published_at']).size().reset_index(name='count'))
         pics_x = pics['published_at']
